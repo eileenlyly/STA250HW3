@@ -8,10 +8,10 @@ Tags
 ---------
 With the help of [StackExchange queries](http://data.stackexchange.com/stackoverflow/queries), we can explore the properties of tags.
 
-By Feb 2014 (since the statistics of tags only slightly change over time, apply dataset of anytime is fair), there are 36,127 total tags used in 19,814,527 stackoverflow posts. I identify top 100 of them as [popular]() (appear in 46.19% of all posts), top 5,000 of them as [common]() (appear in 92.49% of all posts), others as rare (appear in less than 8% of all posts).
+By Feb 2014 (since the statistics of tags only slightly change over time, apply dataset of anytime is fair), there are 36,127 total tags used in 19,814,527 stackoverflow posts. I identify top 100 of them as [popular](data/popular_tags.csv) (appear in 46.19% of all posts), top 5,000 of them as [common](data/common_tag.csv) (appear in 92.49% of all posts), others as rare (appear in less than 8% of all posts).
 
-Then I try to categorize tags by its [description]() (to increase efficiency, I only analyze top 5,000 tags). After the inspection of some top tags, I divide tags into 4 categories: [language](), [library](), [application]() and others. 
-The rule is to identify keywords in each category:
+Then I try to categorize tags by its [description](data/tag_description.csv) (to increase efficiency, I only analyze top 5,000 tags). After the inspection of some top tags, I divide tags into 4 categories: [language](data/tag_lng.csv), [library](data/tag_lib.csv), [application](data/tag_app.csv) and others. 
+The rule to identify keywords in each category is a following:
 
 | Category |  Keywords | 
 | :--------: | :------:| 
