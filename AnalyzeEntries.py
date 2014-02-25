@@ -16,7 +16,7 @@ import os
 
 os.chdir('/Users/eileenlyly/courses/STA250/HW3/')
 
-CLASSES = [ 'open', 'not a real question', 'not constructive', 'off topic', 'too localized']
+CLASSES = ['open', 'not a real question', 'not constructive', 'off topic', 'too localized']
 status = dict((k, str(i+1)) for i,k in enumerate(CLASSES))
 
 #read language tags into dictionary, 436 total language tags
@@ -25,7 +25,7 @@ lng_dict = defaultdict(lambda : None)
 for lng in lng_reader:
     lng_dict[lng[0]]
  
-#read lib tags into dictionary
+#read lib tags into dictionary, 690 total library tags
 lib_reader = csv.reader(open('tag_lib.csv'))
 lib_dict = defaultdict(lambda : None)
 for lib in lib_reader:
@@ -44,30 +44,31 @@ for pop in pop_reader:
     pop_dict[pop[0]]
     
 #read common tags into dictionary, 5000 total common tags
-com_reader = csv.reader(open('commmon_tags.csv'))
+com_reader = csv.reader(open('common_tags.csv'))
 com_dict = defaultdict(lambda : None)
 for com in com_reader:
     com_dict[com[0]]
  
+word_parser = RegexpTokenizer(r'\w+')
         
 def norm_tag(string):
     return RE_NONALNUM.sub('', string).lower()
 
-def analyzeEntries(row):
-    word_parser = RegexpTokenizer(r'\w+')
+def analyzeEntries(row):    
     try:
       post_status = status[row['OpenStatus']]
     except KeyError:
       post_status = '0'
     
+    post_id = row['PostId']
     user_id = row['OwnerUserId']
     post_time = dateparser.parse(row['PostCreationDate'])
     user_time = dateparser.parse(row['OwnerCreationDate'])    
     user_age = (post_time - user_time).days
     user_rep = row['ReputationAtPostCreation']
-    post_time = (post_time - datetime(2010,1,1,0,0)).days
+    post_time = (post_time - datetime(2008,1,1,0,0)).days
     
-    output = post_status + ',' + str(post_time) + ',' + user_id + ',' + user_rep + ',' + str(user_age)
+    output = post_status + ',' + str(post_id) + ',' + str(post_time) + ',' + user_id + ',' + user_rep + ',' + str(user_age)
       
     tags = [row["Tag%d"%i].lower() for i in range(1,6) if row["Tag%d"%i]] 
     tag_num = len(tags)
@@ -93,16 +94,17 @@ def analyzeEntries(row):
         elif t in app_dict:
             tag_cat = 3
             break
-    output += ','
+    output += ',' + str(tag_num) + ',' + str(is_tag_pop) + ',' + str(is_tag_com) + ',' + str(tag_cat)
     
     #parameters about title
     title = row['Title'].lower()
     title_len = len(title)
     title_words = word_parser.tokenize(title)
     title_words_count = len(title_words)
-    is_title_qst = title.endswith('?')
+    is_title_qst = title.endswith('?') * 1
     # number of tags mentioned in title
     n_tags_in_title = len(set(title_words).intersection(set(tags)))
+    output += ',' + str(title_len) + ',' + str(title_words_count) + ',' + str(is_title_qst) + ',' + str(n_tags_in_title)
     
     #get main body
     body = row['BodyMarkdown'].lower()
@@ -131,6 +133,10 @@ def analyzeEntries(row):
             ss = sent.strip()
             if ss.endswith('?'):
                 sent_qst += 1   
+                
+    sent_qst_rt = round(float(sent_qst) / sent_num, 3)
+    
+    output += ',' + str(body_len) + ',' + str(code_seg) + ',' + str(code_lines) + ',' + str(n_tags_in_text) + ',' + str(sent_num) + ',' + str(sent_qst_rt)
     
     return output + '\n'
             
@@ -144,6 +150,8 @@ if __name__ == "__main__":
         
     pool = Pool()     
     with open('data/output.csv', 'w') as outf:
-        outf.write("post_status,post_time,user_id,user_rep,user_age,tag_num,tag_cat,title_len,title_words,is_title_qst,n_tags_in_title,code_seg,code_lines,sent_num,sent_qst,n_tags_in_text\n")
+        header = "post_status,post_id,post_time,user_id,user_rep,user_age,tag_num,is_tag_pop,is_tag_com,tag_cat,title_len,title_words,is_title_qst,n_tags_in_title"
+        header += ",body_len,code_seg,code_lines,n_tags_in_text,sent_num,sent_qst_rt\n"
+        outf.write(header)
         for i,output in enumerate(pool.imap(analyzeEntries, reader, chunksize=100)):
             outf.write(output)
