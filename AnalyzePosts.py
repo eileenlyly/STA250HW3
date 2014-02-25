@@ -54,7 +54,7 @@ word_parser = RegexpTokenizer(r'\w+')
 def norm_tag(string):
     return RE_NONALNUM.sub('', string).lower()
 
-def analyzeEntries(row):    
+def analyzePosts(row):    
     try:
       post_status = status[row['OpenStatus']]
     except KeyError:
@@ -153,5 +153,5 @@ if __name__ == "__main__":
         header = "post_status,post_id,post_time,user_id,user_rep,user_age,tag_num,is_tag_pop,is_tag_com,tag_cat,title_len,title_words,is_title_qst,n_tags_in_title"
         header += ",body_len,code_seg,code_lines,n_tags_in_text,sent_num,sent_qst_rt\n"
         outf.write(header)
-        for i,output in enumerate(pool.imap(analyzeEntries, reader, chunksize=100)):
+        for i,output in enumerate(pool.imap(analyzePosts, reader, chunksize=100)):
             outf.write(output)
