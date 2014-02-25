@@ -12,11 +12,13 @@ By Feb 2014 (since the statistics of tags only slightly change over time, apply 
 
 Then I try to categorize tags by its [description]() (to increase efficiency, I only analyze top 5,000 tags). After the inspection of some top tags, I divide tags into 4 categories: [language](), [library](), [application]() and others. 
 The rule is to identify keywords in each category:
+
 | Category |  Keywords | 
 | :--------: | :------:| 
 | language  | "language" | 
 | library   |  "library", "framework", "module" | 
-| application| "application", "software", "platform", "IDE"| 
+| application| "application", "software", "platform", "IDE"|
+ 
 A single tag may appear in multiple categories.
 
 We can assume that the topic of the posted questions are determined by the category of their tags. In this way, we categorize the topic of posts.
