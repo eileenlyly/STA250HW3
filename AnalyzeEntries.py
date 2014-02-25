@@ -14,26 +14,40 @@ from datetime import datetime
 
 import os
 
-CLASSES = [ 'not a real question', 'not constructive', 'off topic', 'open', 'too localized']
-status = dict( (k, str(i+1)) for i,k in enumerate(CLASSES))
+os.chdir('/Users/eileenlyly/courses/STA250/HW3/')
 
-#read language tags into dictionary
-lng_reader = csv.reader(open('/Users/eileenlyly/courses/STA250/HW3/tag_lng.csv'))
+CLASSES = [ 'open', 'not a real question', 'not constructive', 'off topic', 'too localized']
+status = dict((k, str(i+1)) for i,k in enumerate(CLASSES))
+
+#read language tags into dictionary, 436 total language tags
+lng_reader = csv.reader(open('tag_lng.csv'))
 lng_dict = defaultdict(lambda : None)
 for lng in lng_reader:
     lng_dict[lng[0]]
  
 #read lib tags into dictionary
-lib_reader = csv.reader(open('/Users/eileenlyly/courses/STA250/HW3/tag_lib.csv'))
+lib_reader = csv.reader(open('tag_lib.csv'))
 lib_dict = defaultdict(lambda : None)
 for lib in lib_reader:
     lib_dict[lib[0]]
  
 #read app tags into dictionary, 1022 total app tags
-app_reader = csv.reader(open('/Users/eileenlyly/courses/STA250/HW3/tag_app.csv'))
+app_reader = csv.reader(open('tag_app.csv'))
 app_dict = defaultdict(lambda : None)
 for app in app_reader:
     app_dict[app[0]]
+    
+#read popular tags into dictionary, 100 total popular tags
+pop_reader = csv.reader(open('popular_tags.csv'))
+pop_dict = defaultdict(lambda : None)
+for pop in pop_reader:
+    pop_dict[pop[0]]
+    
+#read common tags into dictionary, 5000 total common tags
+com_reader = csv.reader(open('commmon_tags.csv'))
+com_dict = defaultdict(lambda : None)
+for com in com_reader:
+    com_dict[com[0]]
  
         
 def norm_tag(string):
@@ -53,14 +67,23 @@ def analyzeEntries(row):
     user_rep = row['ReputationAtPostCreation']
     post_time = (post_time - datetime(2010,1,1,0,0)).days
     
-    output = post_status + ',' + ',' + str(post_time) + ',' + user_id + ',' + user_rep + ',' + str(user_age)
+    output = post_status + ',' + str(post_time) + ',' + user_id + ',' + user_rep + ',' + str(user_age)
       
     tags = [row["Tag%d"%i].lower() for i in range(1,6) if row["Tag%d"%i]] 
     tag_num = len(tags)
     
-    tag_cat = 0
-    
+    is_tag_pop = 0
+    is_tag_com = 0
     for t in tags:
+        if t in pop_dict:
+            is_tag_pop = 1
+            is_tag_com = 1
+            break
+        if t in com_dict:
+            is_tag_com = 1
+    
+    tag_cat = 0    
+    for t in tags:            
         if t in lng_dict:
             tag_cat = 1
             break
@@ -70,6 +93,7 @@ def analyzeEntries(row):
         elif t in app_dict:
             tag_cat = 3
             break
+    output += ','
     
     #parameters about title
     title = row['Title'].lower()
@@ -106,9 +130,7 @@ def analyzeEntries(row):
             sent_num += 1
             ss = sent.strip()
             if ss.endswith('?'):
-                sent_qst += 1
-                
-    
+                sent_qst += 1   
     
     return output + '\n'
             
@@ -118,10 +140,10 @@ if __name__ == "__main__":
     
         
     # Read csv as dictionary    
-    reader = csv.DictReader(open('/Users/eileenlyly/courses/STA250/HW3/data/test.csv'))
+    reader = csv.DictReader(open('data/test.csv'))
         
     pool = Pool()     
-    with open('/Users/eileenlyly/courses/STA250/HW3/data/output.csv', 'w') as outf:
+    with open('data/output.csv', 'w') as outf:
         outf.write("post_status,post_time,user_id,user_rep,user_age,tag_num,tag_cat,title_len,title_words,is_title_qst,n_tags_in_title,code_seg,code_lines,sent_num,sent_qst,n_tags_in_text\n")
         for i,output in enumerate(pool.imap(analyzeEntries, reader, chunksize=100)):
             outf.write(output)
