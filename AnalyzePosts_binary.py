@@ -11,9 +11,6 @@ from datetime import datetime
 
 os.chdir('/Users/eileenlyly/courses/STA250/HW3/')
 
-CLASSES = ['open', 'not a real question', 'not constructive', 'off topic', 'too localized']
-status = dict((k, str(i+1)) for i,k in enumerate(CLASSES))
-
 #read language tags into dictionary, 436 total language tags
 lng_reader = csv.reader(open('tag_lng.csv'))
 lng_dict = defaultdict(lambda : None)
@@ -49,11 +46,10 @@ word_parser = RegexpTokenizer(r'\w+')
 def norm_tag(string):
     return RE_NONALNUM.sub('', string).lower()
 
-def analyzePosts(row):    
-    try:
-      post_status = status[row['OpenStatus']]
-    except KeyError:
-      post_status = '0'
+def analyzePosts_binary(row): 
+    post_status = '1'
+    if row['OpenStatus'] != 'open':
+        post_status = '0'  
     
     post_id = row['PostId']
     user_id = row['OwnerUserId']
@@ -143,9 +139,9 @@ if __name__ == "__main__":
     reader = csv.DictReader(open('data/pred-test.csv'))
         
     pool = Pool()     
-    with open('data/output.csv', 'w') as outf:
+    with open('data/output_binary.csv', 'w') as outf:
         header = "post_status,post_id,post_time,user_id,user_rep,user_age,tag_num,is_tag_pop,is_tag_com,tag_cat,title_len,title_words,is_title_qst,n_tags_in_title"
         header += ",body_len,code_seg,code_lines,n_tags_in_text,sent_num,sent_qst\n"
         outf.write(header)
-        for i,output in enumerate(pool.imap(analyzePosts, reader, chunksize=100)):
+        for i,output in enumerate(pool.imap(analyzePosts_binary, reader, chunksize=100)):
             outf.write(output)
