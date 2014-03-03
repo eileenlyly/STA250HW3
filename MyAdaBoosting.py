@@ -13,7 +13,7 @@ def sampleByWeight(array, weights, size):
     
     return array[index]
 
-class AdaBoosting:
+class MyAdaBoosting:
     
     def __init__(self,classifier):
         self.classifier = classifier
@@ -52,7 +52,7 @@ class AdaBoosting:
         print("Training complete after " + str(T) + " iterations")
         
         
-    def predict(self, X, maxY):
+    def predict(self, X, minY, maxY):
         n = len(X)
         Y = np.zeros(n)
         e = sum(self.alpha)
@@ -61,7 +61,11 @@ class AdaBoosting:
             Y += weak_learner.predict(X) * self.alpha[t] / e
             
         for i in range(len(Y)):
-            Y[i] = min(int(round(Y[i])), maxY)
+            Y[i] = int(round(Y[i]))
+            if Y[i] > maxY:
+                Y[i] = maxY
+            if Y[i] < minY:
+                Y[i] = minY
                 
         return Y
         
@@ -70,10 +74,10 @@ if __name__ == "__main__":
         
     os.chdir('/Users/eileenlyly/courses/STA250/HW3/data/')
 
-    train_data = np.loadtxt('train-output.csv',dtype=np.object,delimiter=',')
+    train_data = np.loadtxt('train-sample-output-binary.csv',dtype=np.object,delimiter=',')
     train_data = train_data[1:,:].astype(np.int)
 
-    pdkt_data = np.loadtxt('pdkt-output.csv',dtype=np.object,delimiter=',')
+    pdkt_data = np.loadtxt('pdkt-output-binary.csv',dtype=np.object,delimiter=',')
     pdkt_data = pdkt_data[1:,:].astype(np.int)
     pdkt_input = pdkt_data[:,1:]
     pdkt_true = np.ravel(pdkt_data[:,0:1])
@@ -81,12 +85,12 @@ if __name__ == "__main__":
     classes = np.ravel(train_data[:,0:1])
     predictors = train_data[:,1:]
         
-    ab = AdaBoosting(GaussianNB)
-    T = 50
-    k = max(10, len(predictors) / 1000)
+    ab = MyAdaBoosting(GaussianNB)
+    T = 100
+    k = max(50, len(predictors) / 10000)
     ab.train(predictors, classes, T, k)
-    pdkt_res = ab.predict(pdkt_input,5)
-    print(pdkt_res)
+    pdkt_res = ab.predict(pdkt_input,0,1)
+    #print(pdkt_res)
     acc_score = accuracy_score(pdkt_true,pdkt_res)
     prc_score = precision_score(pdkt_true,pdkt_res)
 

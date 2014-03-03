@@ -32,4 +32,21 @@ We can assume that the topic of the one posted question are determined by the ca
 
 Analyze Posts
 ------------
+I extracted the following variable for each entry of post:
 
+- OpenStatus: open(1), close(0)/open(1), not a real question(2), not constructive(3), off topic(4), too localized(5)
+- post\_id, post\_time(relative time from 2008), user\_id, user\_rep, user\_age(user's registration age when created the post)
+- tag\_num, is\_tag\_pop(popular tag?), is\_tag\_com(common tag?), tag\_cat(category of the primaty(first) tag)
+- title\_len, title\_words, is\_title\_qst(is title a question), n\_tags\_in\_title(number of tags contained in the title)
+- body\_len, code\_seg(number of segments of code), code\_lines, n\_tags\_in\_text, sent\_num, sent\_qst(how mant sentences are question)
+
+I take advantage of multi-threading to increase efficiency. It takes about 50s to analyze the train-sample.csv
+
+Train the Data
+------------
+- k-Nearest Neighbor
+- Ada Boosting
+- My Ada Boosting
+
+Prediction
+-----------
