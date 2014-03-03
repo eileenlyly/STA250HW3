@@ -32,19 +32,24 @@ class AdaBoosting:
             y_sample = sampleByWeight(Y,w,k)
             weak_learner.fit(x_sample,y_sample)
             Y_pdkt = weak_learner.predict(X)
-            e = np.zeros(n)
+            e = np.ones(n)
             error = 0
             for i in range(n):
                 if Y_pdkt[i] != Y[i]:
-                    e[i] = 1
+                    e[i] = -1
                     error += 1
-                    
-            error = error * 1.0 / n            
-            alpha = math.log((1 - error) / error)
-            w *= np.exp(alpha * e)
+                        
+            error = error * 1.0 / n
+            alpha = 0.5 * math.log((1 - error) / error)
+            w *= np.exp(-alpha * e)
             w /= sum(w)
             self.weak_classifier_ensemble.append(weak_learner)
             self.alpha.append(alpha) 
+            if error < 0.1:
+                print("Training complete after " + str(t) + " iterations")
+                break
+            
+        print("Training complete after " + str(T) + " iterations")
         
         
     def predict(self, X, maxY):
@@ -77,7 +82,7 @@ if __name__ == "__main__":
     predictors = train_data[:,1:]
         
     ab = AdaBoosting(GaussianNB)
-    T = 10
+    T = 50
     k = max(10, len(predictors) / 1000)
     ab.train(predictors, classes, T, k)
     pdkt_res = ab.predict(pdkt_input,5)
