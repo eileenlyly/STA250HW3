@@ -118,16 +118,19 @@ def analyzePosts(row):
     for c in codes:
         code_lines += c.count('\n')
         
-    n_tags_in_text = 0
     sent_num = 0
     sent_qst = 0
-    
+    n_tags_in_text = 0
+
     for seg in text:
         for sent in nltk.sent_tokenize(seg):
             sent_num += 1
             ss = sent.strip()
             if ss.endswith('?'):
-                sent_qst += 1   
+                sent_qst += 1
+            for t in tags:
+                if ss.lower().find(t) != -1:
+                       n_tags_in_text += 1
                 
     #sent_qst_rt = round(float(sent_qst) / sent_num, 3)
     
@@ -140,10 +143,10 @@ def analyzePosts(row):
 if __name__ == "__main__":
         
     # Read csv as dictionary    
-    reader = csv.DictReader(open('data/pred-test.csv'))
+    reader = csv.DictReader(open('data/train-sample.csv'))
         
     pool = Pool()     
-    with open('data/output.csv', 'w') as outf:
+    with open('data/train-sample-output.csv', 'w') as outf:
         header = "post_status,post_id,post_time,user_id,user_rep,user_age,tag_num,is_tag_pop,is_tag_com,tag_cat,title_len,title_words,is_title_qst,n_tags_in_title"
         header += ",body_len,code_seg,code_lines,n_tags_in_text,sent_num,sent_qst\n"
         outf.write(header)
