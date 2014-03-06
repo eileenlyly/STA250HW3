@@ -93,4 +93,4 @@ Multiple Classification Accuracy and Precision
 |0.8138 | 0.5566 | *0.48|
 |0.8441 | 0.4950|*0.40 |
 
-K-nearesr neighbors beats others! And it runs much faster, which only takes 5 seconds to train the sample and predict.
+K-nearest neighbors beats others! And it runs much faster, which only takes 5 seconds to train the sample and predict.
